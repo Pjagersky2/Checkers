@@ -52,6 +52,23 @@ class Checkers:
                                      bot_right_y,
                                      fill=color)
 
+    def draw_piece(self, col: int, row: int, color: str) -> None:
+        """Draw a piece on the canvas."""
+
+        # Top-left corner
+        top_left_x = col * self.square_length
+        top_left_y = row * self.square_length
+
+        #  Bottom-right corner
+        bot_right_x = top_left_x + self.square_length
+        bot_right_y = top_left_y + self.square_length
+
+        self.canvas.create_oval(top_left_x,
+                                top_left_y,
+                                bot_right_x,
+                                bot_right_y,
+                                fill=color)
+
     def draw_board(self) -> None:
         """Draw the entire checkerboard."""
 
@@ -63,6 +80,18 @@ class Checkers:
                 color = self.colors[color_key]
 
                 self.draw_square(col, row, color)
+
+                # Temporary code
+                if color_key == "dark":
+                    piece_color = None
+
+                    if row < 3:
+                        piece_color = "black"
+                    elif row >= 5:
+                        piece_color = "red"
+
+                    if piece_color:
+                        self.draw_piece(col, row, piece_color)
 
 
 def main() -> None:
