@@ -55,13 +55,22 @@ class Checkers:
     def draw_piece(self, col: int, row: int, color: str) -> None:
         """Draw a piece on the canvas."""
 
-        # Top-left corner
-        top_left_x = col * self.square_length
-        top_left_y = row * self.square_length
+        reduction_scalar = 0.4  # 90 percent
+        offset_percent = (1 - reduction_scalar) / 2
+        piece_offset = round(self.square_length * offset_percent)
+        reduce_length = self.square_length * reduction_scalar
 
-        #  Bottom-right corner
-        bot_right_x = top_left_x + self.square_length
-        bot_right_y = top_left_y + self.square_length
+        # Top-left corner
+        top_left_x = (col * self.square_length) + piece_offset
+        top_left_y = (row * self.square_length) + piece_offset
+
+        # Bottom-right corner
+        bot_right_x = top_left_x + reduce_length
+        bot_right_y = top_left_y + reduce_length
+
+        print((top_left_x, top_left_y), (bot_right_x, bot_right_y), piece_offset, reduce_length)
+        if top_left_x == 0.0:
+            color = "blue"
 
         self.canvas.create_oval(top_left_x,
                                 top_left_y,
@@ -92,6 +101,8 @@ class Checkers:
 
                     if piece_color:
                         self.draw_piece(col, row, piece_color)
+
+                # self.draw_piece(col, row, "black")
 
 
 def main() -> None:
