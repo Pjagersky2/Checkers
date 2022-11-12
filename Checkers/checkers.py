@@ -5,15 +5,16 @@ from tkinter import Canvas, Tk
 class Checkers(Canvas):
     """Representation of a checkers game."""
 
-    size = 800
     grid_size = 8
     colors = {
         "dark": "#a77d5c",
         "light": "#e8cfaa"
     }
 
-    def __init__(self, master: Tk) -> None:
+    def __init__(self, master: Tk, size: int = 800) -> None:
         """Create a new instance."""
+
+        self.size = size
 
         super().__init__(master, width=self.size, height=self.size)
 
@@ -59,10 +60,6 @@ class Checkers(Canvas):
         bot_right_x = top_left_x + reduce_length
         bot_right_y = top_left_y + reduce_length
 
-        print((top_left_x, top_left_y), (bot_right_x, bot_right_y), piece_offset, reduce_length)
-        if top_left_x == 0.0:
-            color = "blue"
-
         self.create_oval(top_left_x,
                          top_left_y,
                          bot_right_x,
@@ -98,16 +95,40 @@ class Checkers(Canvas):
     def left_click(self, event) -> None:
         """Left-click event handler"""
 
-        print("left click", event.x, event.y)
+        col = event.x // self.square_length
+        row = event.y // self.square_length
+
+        # (x, y) = event.x , event.y coordinates anywhere on canvas
+        # (a, b) = square grid from 0 - 7
+        # x and y have to be between 0 - 800
+        # assuming x and y are a random point in cell (0, 0)
+
+        # legal random point in cell (0, 0) -> (x, y) = (021, 25)
+        # legal random point in cell (1, 0) -> (x, y) = (125, 25)
+        # legal random point in cell (2, 0) -> (x, y) = (223, 25)
+
+        # cell -> min    - max
+        # 0    -> 0      - 100
+        # 1    -> 100    - 200
+        # 2    -> 200    - 300
+        # given a minimum, to get a cell divide by square_size
+
+        # print("left click", event.x, event.y)
+        print((col, row), (event.x, event.y))
 
 
 def main() -> None:
     """Run the main function."""
 
+    size = 800
+
     window = Tk()
     window.title("Checkers")
-    checkers = Checkers(window)
+    window.geometry(f"{size}x{size}")
+
+    checkers = Checkers(window, size=size)
     checkers.pack()
+
     window.mainloop()
 
 
