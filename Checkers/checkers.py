@@ -1,74 +1,9 @@
 """Module for displaying a GUI checkerboard."""
 from tkinter import Canvas, Tk
-from typing import Tuple
+from typing import List
 
-
-class Square:
-    """Representation of a square on a checkers game."""
-
-    side_length = -1
-    colors = {
-        "dark": "#a77d5c",
-        "light": "#e8cfaa"
-    }
-
-    @classmethod
-    def set_side_length(cls, length: int) -> None:
-        """Set the side length for all square instances."""
-
-        cls.side_length = length
-
-    def __init__(self, col: int, row: int) -> None:
-        """Create a new instance."""
-
-        self.col = col
-        self.row = row
-        self.color = self.get_color()
-
-    def __str__(self) -> str:
-        """String logic."""
-
-        return f"Square(col: {self.col}, row: {self.row}, color: {self.color})"
-
-    @property
-    def coords(self) -> Tuple[int, int, int, int]:
-        """Coordinates of the square."""
-
-        top_left_x = self.col * self.side_length
-        top_left_y = self.row * self.side_length
-
-        bot_right_x = top_left_x + self.side_length
-        bot_right_y = top_left_y + self.side_length
-
-        return (top_left_x, top_left_y, bot_right_x, bot_right_y)
-
-    def get_color(self) -> str:
-        """Evaluate the color."""
-
-        color_index = (self.row + self.col) % 2
-        color_key = "dark" if color_index else "light"
-        color = self.colors[color_key]
-
-        return color
-
-    def draw(self, canvas: Canvas) -> None:
-        """Draw the square to the canvas."""
-
-        canvas.create_rectangle(*self.coords, fill=self.color)
-
-    def is_square(self, col: int, row: int) -> bool:
-        """Check if position is the square."""
-
-        result = False
-        if self.col == col and self.row == row:
-            result = True
-
-        return result
-
-    def reset(self) -> None:
-        """Reset to original square properties."""
-
-        self.color = self.get_color()
+from square import Square
+from piece import Piece
 
 
 class Checkers(Canvas):
@@ -85,13 +20,11 @@ class Checkers(Canvas):
 
         self.bind("<Button-1>", self.left_click)
 
-        self.squares = []
-        for col in range(self.grid_size):
-            for row in range(self.grid_size):
-                square = Square(col, row)
-                self.squares.append(square)
+        self.squares = self.init_squares()
+        self.pieces = self.init_pieces()
 
         Square.set_side_length(self.square_length)
+        Piece.set_side_length(self.square_length)
 
         self.draw_board()
 
@@ -101,58 +34,26 @@ class Checkers(Canvas):
 
         return self.size // self.grid_size
 
-    # def draw_piece(self, col: int, row: int, color: str) -> None:
-    #     """Draw a piece on the canvas."""
-
-    #     reduction_scalar = 0.9  # 90 percent
-    #     offset_percent = (1 - reduction_scalar) / 2
-    #     piece_offset = round(self.square_length * offset_percent)
-    #     reduce_length = self.square_length * reduction_scalar
-
-    #     # Top-left corner
-    #     top_left_x = (col * self.square_length) + piece_offset
-    #     top_left_y = (row * self.square_length) + piece_offset
-
-    #     # Bottom-right corner
-    #     bot_right_x = top_left_x + reduce_length
-    #     bot_right_y = top_left_y + reduce_length
-
-    #     self.create_oval(top_left_x,
-    #                      top_left_y,
-    #                      bot_right_x,
-    #                      bot_right_y,
-    #                      fill=color)
-
     def draw_squares(self) -> None:
         """Draw the squares."""
 
         for square in self.squares:
             square.draw(self)
 
+    def draw_pieces(self) -> None:
+        """Draw the pieces."""
+
+        for piece in self.pieces:
+            piece.draw(self)
+
     def draw_board(self) -> None:
         """Draw the entire checkerboard."""
 
         self.draw_squares()
-
-        # # Temporary code
-        # for col in range(self.grid_size):
-        #     for row in range(self.grid_size):
-        #         color_index = (row + col) % 2
-        #         color_key = "dark" if color_index else "light"
-
-        #         if color_key == "dark":
-        #             piece_color = None
-
-        #             if row < 3:
-        #                 piece_color = "black"
-        #             elif row >= 5:
-        #                 piece_color = "red"
-
-        #             if piece_color:
-        #                 self.draw_piece(col, row, piece_color)
+        self.draw_pieces()
 
     def find_square(self, col: int, row: int) -> Square:
-        """Find a square based on position."""
+        """Find the square based on position."""
 
         found = None
         for square in self.squares:
@@ -161,6 +62,17 @@ class Checkers(Canvas):
                 break
         else:
             raise Exception(f"Square not found for position: {col}, {row}")
+
+        return found
+
+    def find_piece(self, col: int, row: int) -> Square:
+        """Find the piece based on position."""
+
+        found = None
+        for piece in self.pieces:
+            if piece.is_piece(col, row):
+                found = piece
+                break
 
         return found
 
@@ -176,13 +88,49 @@ class Checkers(Canvas):
         col = event.x // self.square_length
         row = event.y // self.square_length
 
-        # Change color.
         square = self.find_square(col, row)
         print(square)
 
-        square.color = "blue"
+        piece = self.find_piece(col, row)
+        if piece:
+            print(piece)
+            square.color = "yellow"
+
         self.draw_board()
         self.reset_squares()
+
+    @staticmethod
+    def init_squares() -> List[Square]:
+        """Initialize the board squares."""
+
+        squares = []
+        for col in range(Checkers.grid_size):
+            for row in range(Checkers.grid_size):
+                square = Square(col, row)
+                squares.append(square)
+
+        return squares
+
+    @staticmethod
+    def init_pieces() -> List[Piece]:
+        """Initialize the board pieces."""
+
+        pieces = []
+        for col in range(Checkers.grid_size):
+            for row in range(Checkers.grid_size):
+                if (row + col) % 2:
+                    color = None
+
+                    if row < 3:
+                        color = "#000000"
+                    elif row >= 5:
+                        color = "#ff0000"
+
+                    if color:
+                        piece = Piece(col, row, color)
+                        pieces.append(piece)
+
+        return pieces
 
 
 def main() -> None:

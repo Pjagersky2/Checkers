@@ -1,0 +1,14 @@
++ dont click on a piece
++    nothing happens
+
++ left click on a piece
+    tile lights up, piece lights up, places the piece can go light up
+
+click on an invalid square
+    reset the board
+
+click on a valid square
+    piece moves
+
+use variables to tell what kind of square it is.
+use a condition in draw function that checks for variables.  
