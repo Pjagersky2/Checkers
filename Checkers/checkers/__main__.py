@@ -2,8 +2,8 @@
 from tkinter import Canvas, Tk
 from typing import List
 
-from square import Square
-from piece import Piece
+from checkers.square import Square
+from checkers.piece import Piece
 
 
 class Checkers(Canvas):
