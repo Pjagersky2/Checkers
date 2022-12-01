@@ -6,6 +6,7 @@ Features:
     4. Draw pieces.
  - Be able to move pieces.
     1. Create a left-click event handler.
+      + Evaluate square coordinate based on left click coordinate.
     2. Ensure a move is valid.
     3. Redraw all pieces on board.
  - Play a two player game of checkers.
