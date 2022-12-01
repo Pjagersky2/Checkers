@@ -1,1 +1,0 @@
-# GraphicalProjects
