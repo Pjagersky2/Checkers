@@ -35,7 +35,7 @@ logger_config = {
     "version": 1,
     "formatters": {
         "debug": {
-            "format": "%(asctime)s  |  %(levelno)-2d  |  %(name)s  |  %(message)s"
+            "format": "%(asctime)s  |  %(levelname)s  |  %(name)s  |  %(message)s"
         },
         "stdout": {
             "format": "%(message)s"

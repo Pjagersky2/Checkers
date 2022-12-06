@@ -1,7 +1,8 @@
 """Module for displaying a GUI checkerboard."""
+import json
 import logging
 from tkinter import Canvas, Tk
-from typing import List
+from typing import List, Optional
 
 from checkers.square import Square
 from checkers.piece import Piece
@@ -12,6 +13,7 @@ logger = logging.getLogger(__name__)
 class Checkers(Canvas):
     """Representation of a checkers game."""
 
+    is_selected = False
     grid_size = 8
 
     def __init__(self, master: Tk, size: int = 800) -> None:
@@ -92,15 +94,51 @@ class Checkers(Canvas):
         row = event.y // self.square_length
 
         square = self.find_square(col, row)
-        logger.info(square)
-
         piece = self.find_piece(col, row)
-        if piece:
-            logger.info(piece)
-            square.color = "yellow"
+        # logger.info(square)
 
+        # if piece:
+        #     logger.info(piece)
+        #     square.color = "yellow"
+
+        if not self.is_selected:
+            # no piece previously selected
+            if piece:
+                # piece found, select the piece
+                self.is_selected = True
+                square.color = "yellow"
+                logger.debug("no piece previously selected and piece found")
+            else:
+                # piece not found
+                logger.debug("no piece previously selected and piece not found")
+        else:
+            # piece previously selected
+            if piece:
+                # piece found, select the piece
+                square.color = "yellow"
+                logger.debug("piece previously selected and piece found")
+            else:
+                # piece not found, check overtake, movement, and deselect
+                # TODO: handle overtake and movement
+                # ASSUMING DESELECT
+                self.is_selected = False
+                logger.debug("piece previously selected and piece not found")
+
+        self.display(square, piece=piece)
         self.draw_board()
         self.reset_squares()
+
+    def display(self, square: Square, piece: Optional[Piece] = None) -> None:
+        """Display board information."""
+
+        data = {}
+
+        data["is_selected"] = self.is_selected
+        data["square"] = str(square)
+        if piece:
+            data["piece"] = str(piece)
+
+        logger.info(json.dumps(data, indent=2))
 
     @staticmethod
     def init_squares() -> List[Square]:
